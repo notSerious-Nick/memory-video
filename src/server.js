@@ -13,12 +13,7 @@ app.use("/", globalRouter);
 app.use("/videos", videoRouter);
 app.use("/users", userRouter);
 
-const handleHome = (req, res) => {
-    return res.send("hey"); // if not return with res, the website does unlimited load
-}
-
 app.use(logger);
-app.get("/",handleHome);
 
 const handleListening = () => console.log(`listening! ${PORT}`);
 
