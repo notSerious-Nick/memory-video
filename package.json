@@ -17,7 +17,8 @@
   },
   "homepage": "https://github.com/notSerious-Nick/memory-video#readme",
   "dependencies": {
-    "express": "^4.21.2"
+    "express": "^4.21.2",
+    "morgan": "^1.10.0"
   },
   "devDependencies": {
     "@babel/core": "^7.26.10",
