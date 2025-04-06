@@ -15,6 +15,6 @@ app.use("/users", userRouter);
 
 app.use(logger);
 
-const handleListening = () => console.log(`listening! ${PORT}`);
+const handleListening = () => console.log(`listening! http://localhost:${PORT}`);
 
 app.listen(PORT, handleListening); // ex) button.addEventListener("click", handleClick)
