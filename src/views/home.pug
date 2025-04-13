@@ -1,7 +1,9 @@
-doctype html
-html(lang="ko")
-    head 
-        title Memory
-    body
-        h1 Made by Nick
-    include partials/footer
+extends base
+include mixins/video
+
+block content
+    h1 home
+    each potato in videos
+        +video(potato)
+    else 
+        li sorry noting found
