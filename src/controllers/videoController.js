@@ -40,5 +40,21 @@ export const watching = (req, res) => {
     const video = videos[id - 1];
     return res.render("watch",{pageTitle:video.title, video});
 }
-export const upload = (req, res) => res.send("upload");
+export const getUpload = (req, res) => {
+    return res.render("upload", {pageTitle:"Upload"});
+};
+export const postUpload = (req, res) => {
+    const {title} = req.body;
+
+    const newVideo = {
+        title,
+        rating:"0",
+        Comment:"0",
+        createdAt:`Just Now`,
+        views:"0",
+        id:`${videos.length + 1}`,
+    }
+    videos.push(newVideo);
+    return res.redirect("/");
+}
 export const search = (req, res) => res.send("Search");
