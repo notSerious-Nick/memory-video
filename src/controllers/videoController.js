@@ -21,15 +21,24 @@ let videos = [
     },
 ];
 export const handleDeleteVideo = (req, res) => res.send("Delete video");
-export const handleEditVideo = (req, res) => res.send("Edit video");
+export const getEdit = (req, res) => {
+    const {id} = req.params;
+    const video = videos[id - 1];
+    return res.render("edit", {pageTitle : `${video.title}`, video});
+}
+export const postEdit = (req, res) => {
+    const {id} = req.params;
+    const video = videos[id - 1];
+    video.title = req.body.title;
+    return res.redirect(`/videos/${video.id}`);
+}
 export const trending = (req, res) => {
-    
-    return res.render("home", {pageTitle:"Home", fakeUser:fakeUser, videos:videos});
+    return res.render("home", {pageTitle:"Home", fakeUser:fakeUser, videos});
 }
 export const watching = (req, res) => {
     const {id} = req.params;
     const video = videos[id - 1];
-    return res.render("watch",{pageTitle:video.title, video:video});
+    return res.render("watch",{pageTitle:video.title, video});
 }
 export const upload = (req, res) => res.send("upload");
 export const search = (req, res) => res.send("Search");
