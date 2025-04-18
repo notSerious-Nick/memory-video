@@ -1,4 +1,5 @@
 import "./db";
+import "./models/Video";
 import express from "express"; // node_modules include express file
 import morgan from "morgan";
 import globalRouter from "./routers/globalRouter";
