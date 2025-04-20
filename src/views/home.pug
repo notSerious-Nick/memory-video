@@ -4,7 +4,7 @@ include mixins/video
 block content
     a(href="/videos/upload") Upload
     h1 home
-    each potato in videos
-        +video(potato)
+    each video in videos
+        +video(video)
     else 
         li sorry noting found
