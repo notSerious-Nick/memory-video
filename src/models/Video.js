@@ -1,16 +1,16 @@
 import mongoose from "mongoose";
 
 const videoSchema = new mongoose.Schema({
-    title: String,
-    description: String,
-    createdAt: Date,
-    hashtags: [{type: String}],
+    title: {type: String, required: true, maxLength: 20, trim: true},
+    description: {type: String, required: true, minLength: 1, trim: true},
+    createdAt: {required: true, type: Date, default: Date.now},
+    hashtags: [{type: String, required: true}],
     meta: {
-        views: Number,
-        rating: Number,
+        views: {type: Number, required: true, default: 0},
+        rating: {type: Number, required: true, default: 0},
     },
 });
 
-const video = mongoose.model("Video", videoSchema);
+const Video = mongoose.model("Video", videoSchema);
 
-export default video;
+export default Video;

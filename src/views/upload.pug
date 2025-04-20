@@ -1,5 +1,9 @@
 extends base
 block content
+    if error
+        small=error
     form(Method="POST")
-        input(name="title", placeholder="New Title", required)
+        input(name="title", placeholder="New Title", required, maxLength=20)
+        input(name="description", placeholder="Description", required)
+        input(name="hashtags", placeholder="HashTags (devided by `,`)", required)
         input(type="submit", value="Upload") 
