@@ -2,5 +2,7 @@ extends base
 
 block content
     form(method="POST")
-        input(name="title", placeholder="title", value=`${video.title}`, required)
+        input(name="title", placeholder="title", value=video.title, required)
+        input(name="description", placeholder="description", value=video.description, required)
+        input(name="hashtags", placeholder="hashtags", value=video.hashtags.map(hashtag => hashtag.replace('#', '')).join(""), required)
         input(value="Save", type="submit")
