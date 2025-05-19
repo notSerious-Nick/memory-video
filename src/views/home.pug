@@ -3,6 +3,8 @@ include mixins/video
 
 block content
     a(href="/videos/upload") Upload
+    br
+    a(href="/search") Search
     h1 home
     each video in videos
         +video(video)

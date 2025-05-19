@@ -1,0 +1,13 @@
+extends base
+include mixins/video
+block content
+    a(href="/") home
+    form(Method="Get")
+        input(type="text", placeholder="Keyword", name="keyword")
+        input(type="submit", value="Search")
+    
+    if videos.length > 0
+        each video in videos
+            +video(video)
+    else
+        p No videos found.

@@ -1,7 +1,11 @@
 import { json } from "express";
 import Video from "../models/Video";
 
-export const handleDeleteVideo = (req, res) => res.send("Delete video");
+export const handleDeleteVideo = async(req, res) => {
+    const {id} = req.params;
+    const video = await Video.findByIdAndDelete(id);
+    return res.redirect("/");
+};
 
 export const getEdit = async(req, res) => {
     const {id} = req.params;
@@ -9,14 +13,8 @@ export const getEdit = async(req, res) => {
     if (!video) {
         return res.status(404).render("404", { pageTitle: "Video not found" });
       }
-
     return res.render("edit",{pageTitle: video.title, video});
 }
-
-
-
-
-
 
 export const postEdit = async(req, res) => {
     const {title, description, hashtags} = req.body;
@@ -34,12 +32,6 @@ export const postEdit = async(req, res) => {
 
     return res.redirect(`/videos/${id}`);
 }
-
-
-
-
-
-
 
 
 export const trending = async (req, res) => {
@@ -74,4 +66,15 @@ export const postUpload = async (req, res) => {
         return res.render("upload", {pageTitle:"Upload", error:`${error}`})
     }
 }
-export const search = (req, res) => res.send("Search");
+export const search = async(req, res) => {
+    let videos = [];
+    const {keyword} = req.query;
+    if(keyword){
+        const safe = (keyword) => keyword.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+        const safeKey = safe(keyword);
+        videos = await Video.find({
+            title: { $regex:safeKey, $options: "i"}
+        });
+    }
+    return res.render("search" , {pageTitle:"Search", videos});
+};
