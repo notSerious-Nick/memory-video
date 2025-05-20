@@ -15,16 +15,15 @@ const userSchema = new mongoose.Schema({
     },
     password: {
         type: String,
-        unique: true,
         minLength: 8,
     }
 });
 
 userSchema.pre("save", async function(){
-    if(!this.isModified())
+    if(!this.isModified("password"))
         return;
     const saltRounds = 6;
-    const hash = new bcrypt.hash(this.password, saltRounds);
+    const hash = await bcrypt.hash(this.password, saltRounds);
     this.password = hash;
 });
 
