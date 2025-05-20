@@ -1,0 +1,10 @@
+extends base
+block content
+    if error
+        h3=error
+    form(method="POST")
+        input(type="email", placeholder="Email", name="email", required)
+        input(type="text", placeholder="Username", name="username", minLength=4, maxLength=12, required)
+        input(type="password", placeholder="Password", name="password", minLength=8, required)
+        input(type="password", placeholder="Confirmation", name="password2", minLength=8,required)
+        input(type="submit", value="Submit")
