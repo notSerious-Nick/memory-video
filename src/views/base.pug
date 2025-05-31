@@ -6,7 +6,14 @@ html(lang="ko")
     body
         header
             h1=pageTitle       
-        main 
+        main
+            div
+                a(href="/") Home &nbsp &nbsp
+                a(href="/videos/upload") Upload &nbsp &nbsp
+                a(href="/search") Search &nbsp &nbsp
+                a(href="/join") Join &nbsp &nbsp
+                a(href="/login") Login
+            br
             block content
         include partials/footer
         

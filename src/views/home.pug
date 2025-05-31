@@ -2,13 +2,8 @@ extends base
 include mixins/video
 
 block content
-    a(href="/videos/upload") Upload
-    br
-    a(href="/search") Search
-    br
-    a(href="/join") Join
     h1 home
-    each video in videos
+    each video in videos.reverse()
         +video(video)
     else 
         li sorry noting found
