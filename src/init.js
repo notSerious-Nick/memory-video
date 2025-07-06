@@ -1,9 +1,10 @@
+import "dotenv/config"
 import "./db";
 import "./models/Video";
 import app from "./server";
 
-const PORT = 3000;
+const PORT = 4444;
 
 const handleListening = () => console.log(`✅ listening! http://localhost:${PORT}`);
 
-app.listen(PORT, handleListening); // ex) button.addEventListener("click", handleClick)38492     1 /System/Library/CoreServices/ControlCenter.app/Contents/MacOS/Contr
+app.listen(PORT, handleListening); // ex) button.addEventListener("click", handleClick)38492     1 /System/Library/CoreServices/ControlCenter.app/Contents/MacOS/Contr1n

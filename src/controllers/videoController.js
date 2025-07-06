@@ -19,7 +19,6 @@ export const getEdit = async(req, res) => {
 export const postEdit = async(req, res) => {
     const {title, description, hashtags} = req.body;
     const {id} = req.params;
-    console.log(typeof id);
      const video = await Video.exists({ _id: id });
    if (!video) {
      return res.render("404", { pageTitle: "Video not found." });

@@ -7,13 +7,24 @@ html(lang="ko")
         header
             h1=pageTitle       
         main
-            div
-                a(href="/") Home &nbsp &nbsp
-                a(href="/videos/upload") Upload &nbsp &nbsp
-                a(href="/search") Search &nbsp &nbsp
-                a(href="/join") Join &nbsp &nbsp
-                a(href="/login") Login
-            br
+            nav
+                ul
+                    li 
+                        a(href="/") Home  
+                    li 
+                        a(href="/videos/upload") Upload  
+                    li
+                        a(href="/search") Search  
+                    if loggedIn
+                        li
+                            a(href="/users/logout") Log Out
+                        li
+                            a(href="/profile") #{user.username}
+                    else 
+                        li
+                            a(href="/join") Join  
+                        li
+                            a(href="/login") Login
             block content
         include partials/footer
         
