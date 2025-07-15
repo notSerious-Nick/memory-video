@@ -3,7 +3,7 @@ import "./db";
 import "./models/Video";
 import app from "./server";
 
-const PORT = 4444;
+const PORT = 4001;
 
 const handleListening = () => console.log(`✅ listening! http://localhost:${PORT}`);
 

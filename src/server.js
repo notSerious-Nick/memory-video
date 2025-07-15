@@ -10,9 +10,12 @@ import videoRouter from "./routers/videoRouter";
 import { localsMiddleware } from "./middlewares";
 
 
+
 const app = express(); // application(server) has to listent request from client, server turn on all the time
 const logger = morgan("dev"); // method path statuscode duration time
 
+app.use(express.static(__dirname));
+app.use(express.json());
 app.set("view engine", "pug");
 app.set("views", process.cwd() + "/src/views"); // origin is process.cwd() +/views
 app.use(express.static('public'));
