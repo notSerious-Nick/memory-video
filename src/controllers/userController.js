@@ -4,12 +4,10 @@ import bcrypt from "bcrypt";
 import fetch from "node-fetch";
 import qs from "qs";
 import axios from "axios";
-import { refreshKakaoToken } from "../middlewares";
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export const handleDeleteUser = (req, res) => res.send("delete user");
-export const handleEditUser = (req, res) => res.send("edit user");
 export const getJoin = (req, res) => {
   return res.render("join", { pageTitle: "Join" });
 };
@@ -52,7 +50,7 @@ export const postJoin = async (req, res) => {
   } catch (error) {
     return res
       .status(404)
-      .render("/join", { pageTitle: "Join", error: `${error}` });
+      .render("join", { pageTitle: "Join", error: `${error}` });
   }
   return res.redirect("/");
 };
@@ -227,8 +225,58 @@ export const finishGithubLogin = async (req, res) => {
     return res.redirect("/login");
   }
 };
-export const profile = (req, res) => res.send("Profile");
+export const getEditProfile = (req, res) => {
+  return res.render("editProfile", { pageTitle: "Edit Profile" });
+};
+export const postEditProfile = async (req, res) => {
+  const { _id } = res.locals.user;
+  const { email, username } = req.body;
+  const socialUser = await User.findById({ _id });
+  if (socialUser.socialOnly) {
+    if (socialUser.email === email) return res.redirect();
+  }
+  await User.findByIdAndUpdate(
+    { _id },
+    {
+      email: email,
+      username: username,
+    }
+  );
+  const updatedUser = await User.findById({ _id });
+  req.session.user = updatedUser;
+  return res.redirect("/users/profile");
+};
+
+export const profile = (req, res) => {
+  return res.render("profile", { pageTitle: "Profile" });
+};
+
 export const logout = (req, res) => {
   req.session.destroy();
   return res.redirect("/");
+};
+
+export const getChangePassword = (req, res) => {
+  return res.render("changePassword", { pageTitle: "Change Password" });
+};
+
+export const postChangePassword = async (req, res) => {
+  const { oldPassword, newPassword, passwordConfirmation } = req.body;
+  const { password, _id } = res.locals.user;
+  const ok = await bcrypt.compare(oldPassword, password);
+  if (!ok) {
+    res.render("changePassword", {
+      error: "Plz double check your Old Password",
+    });
+  }
+  if (newPassword !== passwordConfirmation) {
+    res.render(changePassword, {
+      error: "Plz double check your confirmation Password",
+    });
+  }
+
+  await User.findByIdAndUpdate(_id, { password: newPassword });
+  const updatedUser = await User.findById(_id);
+  req.session.user = updatedUser;
+  return res.redirect("/users/profile");
 };

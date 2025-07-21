@@ -1,0 +1,16 @@
+extends base
+
+block content
+  
+  form(method="POST")
+    if user.socialOnly
+      h4=user.email 
+    else
+      input(type="email", placeholder="Email", value=user.email ,name="email", required)
+    input(type="text", placeholder="Username", value=user.username, name="username", minLength=4, maxLength=12, required)
+    input(type="submit", value="Edit")
+    
+    if !user.socialOnly
+      hr
+      a(href="editProfile/changePassword") Change Password &rarr;
+    

@@ -4,3 +4,13 @@ export const localsMiddleware = (req, res, next) => {
   res.locals.website = "Memory";
   next();
 };
+
+export const notUserMiddleware = (req, res, next) => {
+  if (!res.locals.loggedIn) return res.redirect("/");
+  next();
+};
+
+export const noSocialMiddleware = (req, res, next) => {
+  if (res.locals.user.socialOnly) return res.redirect("/");
+  next();
+};
