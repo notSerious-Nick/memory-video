@@ -9,7 +9,8 @@ const videoSchema = new mongoose.Schema({
     views: { type: Number, required: true, default: 0 },
     rating: { type: Number, required: true, default: 0 },
   },
-  videoUrl: String,
+  videoUrl: { type: String },
+  owner: { type: mongoose.Schema.Types.ObjectId, required: true, ref: "User" },
 });
 
 videoSchema.static("formatHashtags", function (hashtags) {

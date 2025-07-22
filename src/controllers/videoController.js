@@ -42,11 +42,11 @@ export const trending = async (req, res) => {
 
 export const watching = async (req, res) => {
   const { id } = req.params;
-  const video = await Video.findById(id);
+  const video = await Video.findById(id).populate("owner");
+  console.log(video);
   if (!video) {
     return res.status(404).render("404", { pageTitle: "Video not found" });
   }
-  console.log(video);
   return res.render("videos/watch", { pageTitle: video.title, video });
 };
 export const getUpload = (req, res) => {
@@ -55,13 +55,13 @@ export const getUpload = (req, res) => {
 export const postUpload = async (req, res) => {
   const { title, description, hashtags } = req.body;
   const { file } = req;
-  console.log(req.file);
   try {
     await Video.create({
       title,
       description,
       hashtags: Video.formatHashtags(hashtags),
       videoUrl: file.path,
+      owner: req.session.user._id,
     });
     return res.redirect("/");
   } catch (error) {
