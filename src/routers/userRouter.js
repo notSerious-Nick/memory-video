@@ -12,14 +12,18 @@ import {
   getChangePassword,
   postChangePassword,
 } from "../controllers/userController";
-import { notUserMiddleware, noSocialMiddleware } from "../middlewares";
+import {
+  notUserMiddleware,
+  noSocialMiddleware,
+  avatarMiddleware,
+} from "../middlewares";
 const userRouter = express.Router();
 
 userRouter
   .route("/editProfile")
   .all(notUserMiddleware)
   .get(getEditProfile)
-  .post(postEditProfile);
+  .post(avatarMiddleware.single("avatar"), postEditProfile);
 userRouter.get("/delete", notUserMiddleware, handleDeleteUser);
 userRouter.get("/profile", notUserMiddleware, profile);
 userRouter.get("/kakao/start", startKakaoLogin);

@@ -1,11 +1,12 @@
-extends base
+extends ../base
 
 block content
+    video(controls, src=`/${video.videoUrl}`)
     h4 #{video.description}
     ul
         each tag in video.hashtags
             li=tag 
-    h4 #{video.views} #{video.views === 1 ? "view" : "views"}
+    h4 #{video.meta.views} #{video.meta.views === 1 ? "view" : "views"}
     a(href=`${video.id}/edit`) video edit &rarr;
     br
     a(href=`${video.id}/delete`) video delete &rarr;

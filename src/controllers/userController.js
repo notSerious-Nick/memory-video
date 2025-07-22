@@ -9,15 +9,16 @@ const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export const handleDeleteUser = (req, res) => res.send("delete user");
 export const getJoin = (req, res) => {
-  return res.render("join", { pageTitle: "Join" });
+  return res.render("users/join", { pageTitle: "Join" });
 };
 export const postJoin = async (req, res) => {
   const { email, username, password, password2 } = req.body;
 
   if (!emailRegex.test(email)) {
-    return res
-      .status(404)
-      .render("join", { pageTitle: "Join", error: "This is not Email form" });
+    return res.status(404).render("users/join", {
+      pageTitle: "Join",
+      error: "This is not Email form",
+    });
   }
 
   const exist = await User.exists({
@@ -25,21 +26,22 @@ export const postJoin = async (req, res) => {
   });
 
   if (exist) {
-    return res.status(404).render("join", {
+    return res.status(404).render("users/join", {
       pageTitle: "Join",
       error: "This email or username already exists",
     });
   }
   if (username.length < 4 || username.length > 12) {
-    return res.status(404).render("join", {
+    return res.status(404).render("users/join", {
       pageTitle: "Join",
       error: "Username must be between 4 and 12 characters long",
     });
   }
   if (password != password2)
-    return res
-      .status(404)
-      .render("join", { pageTitle: "Join", error: "Passwords do not match" });
+    return res.status(404).render("users/join", {
+      pageTitle: "Join",
+      error: "Passwords do not match",
+    });
 
   try {
     await User.create({
@@ -50,25 +52,25 @@ export const postJoin = async (req, res) => {
   } catch (error) {
     return res
       .status(404)
-      .render("join", { pageTitle: "Join", error: `${error}` });
+      .render("users/join", { pageTitle: "Join", error: `${error}` });
   }
   return res.redirect("/");
 };
 export const getLogin = (req, res) => {
-  return res.render("login", { pageTitle: "Login" });
+  return res.render("users/login", { pageTitle: "Login" });
 };
 export const postLogin = async (req, res) => {
   const { username, password } = req.body;
   const user = await User.findOne({ username, socialOnly: false });
   if (!user) {
-    return res.status(400).render("login", {
+    return res.status(400).render("users/login", {
       pageTitle: "Login",
       error: `Username does not exist`,
     });
   }
   const ok = await bcrypt.compare(password, user.password);
   if (!ok) {
-    return res.status(400).render("login", {
+    return res.status(400).render("users/login", {
       pageTitle: "Login",
       error: "Password is not correct",
     });
@@ -129,7 +131,12 @@ export const finishKakaoLogin = async (req, res) => {
         socialOnly: true,
         avatarUrl: rtn.properties.tumbnail_image,
       });
+      const newUser = await User.findOne({ email: email });
+      req.session.loggedIn = true;
+      req.session.user = newUser;
+      return res.redirect("/");
     }
+
     req.session.loggedIn = true;
     req.session.user = user;
     return res.redirect("/");
@@ -226,29 +233,31 @@ export const finishGithubLogin = async (req, res) => {
   }
 };
 export const getEditProfile = (req, res) => {
-  return res.render("editProfile", { pageTitle: "Edit Profile" });
+  return res.render("users/editProfile", { pageTitle: "Edit Profile" });
 };
 export const postEditProfile = async (req, res) => {
-  const { _id } = res.locals.user;
-  const { email, username } = req.body;
+  const { _id, avatarUrl } = res.locals.user;
+  const {
+    body: { email, username },
+    file,
+  } = req;
+
   const socialUser = await User.findById({ _id });
   if (socialUser.socialOnly) {
     if (socialUser.email === email) return res.redirect();
   }
-  await User.findByIdAndUpdate(
-    { _id },
-    {
-      email: email,
-      username: username,
-    }
-  );
+  await User.findByIdAndUpdate(_id, {
+    email,
+    username,
+    avatarUrl: file ? file.path : avatarUrl,
+  });
   const updatedUser = await User.findById({ _id });
   req.session.user = updatedUser;
   return res.redirect("/users/profile");
 };
 
 export const profile = (req, res) => {
-  return res.render("profile", { pageTitle: "Profile" });
+  return res.render("users/profile", { pageTitle: "Profile" });
 };
 
 export const logout = (req, res) => {
@@ -257,7 +266,7 @@ export const logout = (req, res) => {
 };
 
 export const getChangePassword = (req, res) => {
-  return res.render("changePassword", { pageTitle: "Change Password" });
+  return res.render("users/changePassword", { pageTitle: "Change Password" });
 };
 
 export const postChangePassword = async (req, res) => {
@@ -265,18 +274,17 @@ export const postChangePassword = async (req, res) => {
   const { password, _id } = res.locals.user;
   const ok = await bcrypt.compare(oldPassword, password);
   if (!ok) {
-    res.render("changePassword", {
+    res.render("users/changePassword", {
       error: "Plz double check your Old Password",
     });
   }
   if (newPassword !== passwordConfirmation) {
-    res.render(changePassword, {
+    res.render("users/changePassword", {
       error: "Plz double check your confirmation Password",
     });
   }
-
-  await User.findByIdAndUpdate(_id, { password: newPassword });
   const updatedUser = await User.findById(_id);
-  req.session.user = updatedUser;
-  return res.redirect("/users/profile");
+  updatedUser.password = newPassword;
+  await updatedUser.save();
+  return res.redirect("/users/logout");
 };

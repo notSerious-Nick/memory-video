@@ -13,7 +13,7 @@ export const getEdit = async (req, res) => {
   if (!video) {
     return res.status(404).render("404", { pageTitle: "Video not found" });
   }
-  return res.render("edit", { pageTitle: video.title, video });
+  return res.render("videos/edit", { pageTitle: video.title, video });
 };
 
 export const postEdit = async (req, res) => {
@@ -46,24 +46,29 @@ export const watching = async (req, res) => {
   if (!video) {
     return res.status(404).render("404", { pageTitle: "Video not found" });
   }
-
-  return res.render("watch", { pageTitle: video.title, video });
+  console.log(video);
+  return res.render("videos/watch", { pageTitle: video.title, video });
 };
 export const getUpload = (req, res) => {
-  return res.render("upload", { pageTitle: "Upload" });
+  return res.render("videos/upload", { pageTitle: "Upload" });
 };
 export const postUpload = async (req, res) => {
   const { title, description, hashtags } = req.body;
-
+  const { file } = req;
+  console.log(req.file);
   try {
     await Video.create({
       title,
       description,
       hashtags: Video.formatHashtags(hashtags),
+      videoUrl: file.path,
     });
     return res.redirect("/");
   } catch (error) {
-    return res.render("upload", { pageTitle: "Upload", error: `${error}` });
+    return res.render("videos/upload", {
+      pageTitle: "Upload",
+      error: `${error}`,
+    });
   }
 };
 export const search = async (req, res) => {
@@ -76,5 +81,5 @@ export const search = async (req, res) => {
       title: { $regex: safeKey, $options: "i" },
     });
   }
-  return res.render("search", { pageTitle: "Search", videos });
+  return res.render("videos/search", { pageTitle: "Search", videos });
 };
