@@ -6,6 +6,7 @@ const videoSchema = new mongoose.Schema({
   createdAt: { required: true, type: Date, default: Date.now },
   hashtags: [{ type: String, required: true, trim: true }],
   meta: {
+    comments: { type: Number, required: true, default: 0 },
     views: { type: Number, required: true, default: 0 },
     rating: { type: Number, required: true, default: 0 },
   },

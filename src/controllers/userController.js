@@ -3,14 +3,22 @@ import User from "../models/User";
 import bcrypt from "bcrypt";
 import fetch from "node-fetch";
 import qs from "qs";
+import fs from "fs";
+import crypto from "crypto";
+import way from "path";
 import axios from "axios";
+import { findSourceMap } from "module";
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const PORT = "4001"; //changeable
+const http = `http://localhost:${PORT}`;
 
 export const handleDeleteUser = (req, res) => res.send("delete user");
+
 export const getJoin = (req, res) => {
   return res.render("users/join", { pageTitle: "Join" });
 };
+
 export const postJoin = async (req, res) => {
   const { email, username, password, password2 } = req.body;
 
@@ -56,9 +64,11 @@ export const postJoin = async (req, res) => {
   }
   return res.redirect("/");
 };
+
 export const getLogin = (req, res) => {
   return res.render("users/login", { pageTitle: "Login" });
 };
+
 export const postLogin = async (req, res) => {
   const { username, password } = req.body;
   const user = await User.findOne({ username, socialOnly: false });
@@ -86,7 +96,7 @@ export const startKakaoLogin = (req, res) => {
   if (scope) {
     scopeParam = "&scope=" + scope;
   }
-  const redirectUrl = `http://localhost:4001/users/kakao/finish`; // port number is changeable
+  const redirectUrl = `${http}/users/kakao/finish`; // port number is changeable
   const baseUrl = `https://kauth.kakao.com`;
   const params = `/oauth/authorize?client_id=${process.env.KAKAO_CLIENT}&redirect_uri=${redirectUrl}&response_type=code${scopeParam}`;
   const finalUrl = `${baseUrl}${params}`;
@@ -98,7 +108,7 @@ export const finishKakaoLogin = async (req, res) => {
   const param = qs.stringify({
     grant_type: "authorization_code",
     client_id: process.env.KAKAO_CLIENT,
-    redirect_uri: `http://localhost:4001/users/kakao/finish`,
+    redirect_uri: `${http}/users/kakao/finish`,
     client_secret: process.env.KAKAO_SECRET,
     code: req.query.code,
   });
@@ -122,14 +132,14 @@ export const finishKakaoLogin = async (req, res) => {
     const email = rtn.kakao_account.email;
 
     let user = await User.findOne({ email: email });
-
+    const img = await downloadAvatar(rtn.properties.thumbnail_image);
     if (!user) {
       await User.create({
         username: rtn.properties.nickname,
         email: email,
         password: "",
         socialOnly: true,
-        avatarUrl: rtn.properties.tumbnail_image,
+        avatarUrl: img,
       });
       const newUser = await User.findOne({ email: email });
       req.session.loggedIn = true;
@@ -141,12 +151,39 @@ export const finishKakaoLogin = async (req, res) => {
     req.session.user = user;
     return res.redirect("/");
   }
-  return res.redirect("/login");
+  return res.status(401).redirect("/login");
 };
+
+async function downloadAvatar(url) {
+  const uploadPath = way.join(process.cwd(), "uploads", "avatar");
+  if (!fs.existsSync(uploadPath)) {
+    // if uploadPath's path does not exist build new one
+    fs.mkdirSync(uploadPath, { recursive: true });
+  }
+  const randomName = crypto.randomBytes(16).toString("hex"); //32digits random hex numbers will be the name
+  const filePath = way.join(uploadPath, randomName);
+
+  const response = await axios({
+    // img data exist, we take it from here, which means "response" is img.data
+    method: "GET",
+    url,
+    responseType: "stream",
+  });
+
+  const writer = fs.createWriteStream(filePath); // writerable Stream
+  response.data.pipe(writer); //readable Stream connected --^
+
+  console.log(filePath);
+  return new Promise((resolve, reject) => {
+    writer.on("finish", () => resolve(`uploads/avatar/${randomName}`));
+    writer.on("error", reject);
+  });
+}
 
 async function call(method, uri, param, header) {
   try {
     var rtn = await axios({
+      // axios is a Promise-based HTTP client for the browser and Node.js.
       method: method,
       url: uri,
       headers: header,
@@ -215,13 +252,14 @@ export const finishGithubLogin = async (req, res) => {
 
     if (!email) return res.redirect("/login");
 
+    const img = await downloadAvatar(userRequest.avatar_url);
     if (!user) {
       user = await User.create({
         username: userRequest.login,
         email: email.email,
         password: "",
         socialOnly: true,
-        avatarUrl: userRequest.avatar_url,
+        avatarUrl: img,
       });
     }
 
@@ -229,7 +267,7 @@ export const finishGithubLogin = async (req, res) => {
     req.session.user = user;
     return res.redirect("/");
   } else {
-    return res.redirect("/login");
+    return res.status(401).redirect("/login");
   }
 };
 export const getEditProfile = (req, res) => {

@@ -1,5 +1,6 @@
 import { json } from "express";
 import Video from "../models/Video";
+import User from "../models/User";
 
 export const handleDeleteVideo = async (req, res) => {
   const { id } = req.params;
@@ -49,20 +50,23 @@ export const watching = async (req, res) => {
   }
   return res.render("videos/watch", { pageTitle: video.title, video });
 };
-export const getUpload = (req, res) => {
+export const getUpload = async (req, res) => {
   return res.render("videos/upload", { pageTitle: "Upload" });
 };
 export const postUpload = async (req, res) => {
   const { title, description, hashtags } = req.body;
   const { file } = req;
   try {
-    await Video.create({
+    const newVideo = await Video.create({
       title,
       description,
       hashtags: Video.formatHashtags(hashtags),
       videoUrl: file.path,
       owner: req.session.user._id,
     });
+    const user = await User.findById(req.session.user._id);
+    user.videos.push(newVideo);
+    user.save();
     return res.redirect("/");
   } catch (error) {
     return res.render("videos/upload", {
